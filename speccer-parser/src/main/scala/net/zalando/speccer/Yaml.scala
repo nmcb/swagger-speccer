@@ -29,12 +29,12 @@ class Yaml(val input: ParserInput) extends Parser {
     def ns_esc_16_bit              = rule { CharPredicate('u') ~ ns_hex_digit ~ ns_hex_digit ~ ns_hex_digit ~ ns_hex_digit }
     def ns_esc_32_bit              = rule { CharPredicate('U') ~ ns_hex_digit ~ ns_hex_digit ~ ns_hex_digit ~ ns_hex_digit ~ ns_hex_digit ~ ns_hex_digit ~ ns_hex_digit ~ ns_hex_digit }
 
-    def ns_esc_char                = c_backslash ~ (
+    def ns_esc_char                = rule { c_backslash ~ (
       ns_esc_null | ns_esc_bell | ns_esc_backspace | ns_esc_horizontal_tab | ns_esc_line_feed | ns_esc_vertical_tab |
       ns_esc_form_feed | ns_esc_carriage_return | ns_esc_escape | ns_esc_space | ns_esc_double_quote | ns_esc_slash |
       ns_esc_backslash | ns_esc_next_line | ns_esc_non_breaking_space | ns_esc_line_seperator | ns_esc_paragraph_seperator |
-      ns_esc_8_bit | ns_esc_16_bit | ns_esc_32_bit
-    )
+      ns_esc_8_bit | ns_esc_16_bit | ns_esc_32_bit)
+    }
 
     // miscellaneous characters
     def ns_dec_digit    = CharPredicate.Digit
