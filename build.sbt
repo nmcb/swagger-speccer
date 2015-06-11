@@ -2,7 +2,7 @@ lazy val commonSettings = Seq(
 	name         := "speccer-scala",
 	organization := "net.zalando",
 	version      := "0.0.1-SNAPSHOT",
-	scalaVersion := "2.11.6"
+	scalaVersion := "2.11.2"
 )
 
 lazy val root = project.in(file("."))
