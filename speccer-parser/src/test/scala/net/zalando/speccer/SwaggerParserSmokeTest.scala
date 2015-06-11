@@ -20,6 +20,8 @@ class SwaggerParserSmokeTest extends FlatSpec with Matchers {
     spec.consumes should be(List.empty)
     spec.produces should be(List("application/json"))
     spec.info should be(Info("Uber API", "Move your app forward with the Uber API", "1.0.0"))
-    spec.paths("/products").operations should not be empty
+    val ops = spec.paths("/products").operations
+
+    println(ops)
   }
 }

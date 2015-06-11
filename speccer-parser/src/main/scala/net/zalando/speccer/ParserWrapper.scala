@@ -4,8 +4,8 @@ import io.swagger.parser.SwaggerParser
 
 case class Speccer(version: String, host: String, schemes: List[Scheme], consumes: List[String], produces: List[String], info: Info, paths: Map[String, Path])
 case class Info(title: String, description: String, version: String)
-case class Path(operations: List[Operation])
-case class Operation(tags: List[String], description: String, summary: String)
+case class Path(operations: Map[Method, Operation])
+case class Operation(tags: List[String], description: String, summary: String, operationId: String)
 
 sealed trait Scheme
 case object HTTP extends Scheme
@@ -13,7 +13,16 @@ case object HTTPS extends Scheme
 case object WS extends Scheme
 case object WSS extends Scheme
 
+sealed trait Method
+case object GET extends Method
+case object PUT extends Method
+case object POST extends Method
+case object DELETE extends Method
+case object PATCH extends Method
+case object OPTIONS extends Method
+
 object ParserWrapper {
+
   import scala.language.implicitConversions
 
   def read(filename: String): Speccer = {
@@ -75,16 +84,26 @@ object ParserWrapper {
 
     implicit def asScalaPath(path: JPath): Path = {
       if (path == null)
-        Path(List.empty)
-      else
-        Path(path.getOperations)
+        Path(Map.empty)
+      else {
+        val ops = collection.mutable.Map[Method, Operation]()
+        if (path.getGet != null) ops += (GET -> path.getGet)
+        if (path.getPut != null) ops += (PUT -> path.getPut)
+        if (path.getPost != null) ops += (POST -> path.getPost)
+        if (path.getDelete != null) ops += (DELETE -> path.getDelete)
+        if (path.getPatch != null) ops += (PATCH -> path.getPatch)
+        if (path.getOptions != null) ops += (OPTIONS -> path.getOptions)
+        Path(ops.toMap)
+      }
     }
 
-    implicit def asScalaOperations(ops: ju.List[JOperation]): List[Operation] = {
-      if (ops == null)
-        List.empty
-      else
-        ops.asScala.toList map (op => Operation(op.getTags, op.getDescription, op.getSummary))
+    implicit def asScalaOperation(op: JOperation): Operation = {
+      Operation(
+        op.getTags,
+        op.getDescription,
+        op.getSummary,
+        op.getOperationId
+      )
     }
   }
 }
