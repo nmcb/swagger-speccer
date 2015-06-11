@@ -4,8 +4,9 @@ import io.swagger.parser.SwaggerParser
 
 case class Speccer(version: String, host: String, schemes: List[Scheme], consumes: List[String], produces: List[String], info: Info, paths: Map[String, Path])
 case class Info(title: String, description: String, version: String)
-case class Path(operations: Map[Method, Operation])
+case class Path(operations: Map[Method, Operation], parameters: List[Parameter])
 case class Operation(tags: List[String], description: String, summary: String, operationId: String)
+case class Parameter(name: String, description: String, access: String, in: String, required: Boolean)
 
 sealed trait Scheme
 case object HTTP extends Scheme
@@ -40,6 +41,7 @@ object ParserWrapper {
     Speccer(swagger, host, schemes, consumes, produces, info, paths)
   }
 
+  // converts to immutable model
   object SwaggerConverters {
 
     import scala.collection.JavaConverters._
@@ -48,6 +50,7 @@ object ParserWrapper {
     import io.swagger.models.{Info => JInfo}
     import io.swagger.models.{Path => JPath}
     import io.swagger.models.{Operation => JOperation}
+    import io.swagger.models.parameters.{Parameter => JParameter}
 
     implicit def asScalaStringList(list: ju.List[String]): List[String] = {
       if (list == null)
@@ -83,18 +86,15 @@ object ParserWrapper {
     }
 
     implicit def asScalaPath(path: JPath): Path = {
-      if (path == null)
-        Path(Map.empty)
-      else {
-        val ops = collection.mutable.Map[Method, Operation]()
-        if (path.getGet != null) ops += (GET -> path.getGet)
-        if (path.getPut != null) ops += (PUT -> path.getPut)
-        if (path.getPost != null) ops += (POST -> path.getPost)
-        if (path.getDelete != null) ops += (DELETE -> path.getDelete)
-        if (path.getPatch != null) ops += (PATCH -> path.getPatch)
-        if (path.getOptions != null) ops += (OPTIONS -> path.getOptions)
-        Path(ops.toMap)
-      }
+      val ops = collection.mutable.Map[Method, Operation]()
+      if (path.getGet != null) ops += (GET -> path.getGet)
+      if (path.getPut != null) ops += (PUT -> path.getPut)
+      if (path.getPost != null) ops += (POST -> path.getPost)
+      if (path.getDelete != null) ops += (DELETE -> path.getDelete)
+      if (path.getPatch != null) ops += (PATCH -> path.getPatch)
+      if (path.getOptions != null) ops += (OPTIONS -> path.getOptions)
+
+      Path(ops.toMap, path.getParameters)
     }
 
     implicit def asScalaOperation(op: JOperation): Operation = {
@@ -104,6 +104,21 @@ object ParserWrapper {
         op.getSummary,
         op.getOperationId
       )
+    }
+
+    implicit def asScalaParameters(ps: ju.List[JParameter]): List[Parameter] = {
+      if (ps == null)
+        List.empty
+      else
+        ps.asScala.toList map { p =>
+          Parameter(
+            p.getName,
+            p.getDescription,
+            p.getAccess,
+            p.getIn,
+            p.getRequired
+          )
+        }
     }
   }
 }
