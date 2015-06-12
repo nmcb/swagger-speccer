@@ -1,11 +1,14 @@
 package net.zalando.speccer
 
+import io.swagger.models.Swagger
 import io.swagger.parser.SwaggerParser
+
+import scala.util.Try
 
 case class Speccer(version: String, host: String, schemes: List[Scheme], consumes: List[String], produces: List[String], info: Info, paths: Map[String, Path])
 case class Info(title: String, description: String, version: String)
 case class Path(operations: Map[Method, Operation], parameters: List[Parameter])
-case class Operation(tags: List[String], description: String, summary: String, operationId: String)
+case class Operation(tags: List[String], description: String, summary: String, operationId: String, extensions: Map[String, String])
 case class Parameter(name: String, description: String, access: String, in: String, required: Boolean)
 
 sealed trait Scheme
@@ -22,21 +25,30 @@ case object DELETE extends Method
 case object PATCH extends Method
 case object OPTIONS extends Method
 
-object ParserWrapper {
+object SpeccerParser {
 
   import scala.language.implicitConversions
 
-  def read(filename: String): Speccer = {
+  def load(filename: String): Try[Speccer] = {
+    val spec = new SwaggerParser().read(filename)
+    Try(convert(spec))
+  }
+
+  def parse(yaml: String): Try[Speccer] = {
+    val spec = new SwaggerParser().parse(yaml)
+    Try(convert(spec))
+  }
+
+  private[this] def convert(spec: Swagger): Speccer = {
     import SwaggerConverters._
 
-    val spec = new SwaggerParser().read(filename)
     val swagger = spec.getSwagger
     val host = spec.getHost
     val schemes = spec.getSchemes
     val consumes = spec.getConsumes
     val produces = spec.getProduces
-    val info: Info = spec.getInfo
-    val paths: Map[String, Path] = spec.getPaths
+    val info = spec.getInfo
+    val paths = spec.getPaths
 
     Speccer(swagger, host, schemes, consumes, produces, info, paths)
   }
@@ -44,26 +56,23 @@ object ParserWrapper {
   // converts to immutable model
   object SwaggerConverters {
 
-    import scala.collection.JavaConverters._
     import java.{util => ju}
-    import io.swagger.models.{Scheme => JScheme}
-    import io.swagger.models.{Info => JInfo}
-    import io.swagger.models.{Path => JPath}
-    import io.swagger.models.{Operation => JOperation}
+
     import io.swagger.models.parameters.{Parameter => JParameter}
+    import io.swagger.models.{Info => JInfo, Operation => JOperation, Path => JPath, Scheme => JScheme}
+
+    import scala.collection.JavaConverters._
+
+    implicit def asSafeScalaString(str: String): String = {
+      Option(str).getOrElse("")
+    }
 
     implicit def asScalaStringList(list: ju.List[String]): List[String] = {
-      if (list == null)
-        List.empty[String]
-      else
-        list.asScala.toList
+      Option(list).getOrElse(new ju.ArrayList()).asScala.toList
     }
 
     implicit def asScalaInfo(info: JInfo): Info = {
-      if (info == null)
-        Info("", "", "")
-      else
-        Info(info.getTitle, info.getDescription, info.getVersion)
+      Info(info.getTitle, info.getDescription, info.getVersion)
     }
 
     implicit def asScalaSchemes(schemes: ju.List[JScheme]): List[Scheme] = {
@@ -102,7 +111,8 @@ object ParserWrapper {
         op.getTags,
         op.getDescription,
         op.getSummary,
-        op.getOperationId
+        op.getOperationId,
+        op.getVendorExtensions
       )
     }
 
@@ -119,6 +129,13 @@ object ParserWrapper {
             p.getRequired
           )
         }
+    }
+
+    implicit def asScalaVendorExtensions(ve: ju.Map[String, AnyRef]): Map[String, String] = {
+      if (ve == null)
+        Map.empty
+      else
+        ve.asScala.mapValues(_.toString).toMap
     }
   }
 }
