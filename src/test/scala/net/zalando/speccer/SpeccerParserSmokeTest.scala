@@ -1,18 +1,17 @@
 package net.zalando.speccer
 
-import java.io.{FileNotFoundException, File}
+import java.io.File
 
-import net.zalando.speccer
 import org.junit.runner.RunWith
-import org.scalatest.{Matchers, FlatSpec}
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.{FlatSpec, Matchers}
 
 /**
  * Asserts Java/Scala interoperability.
  */
 @RunWith(classOf[JUnitRunner])
 class SpeccerParserSmokeTest extends FlatSpec with Matchers {
-  behavior of "the ParserWrapper"
+  behavior of "the SpeccerParser"
 
   it should "load swagger specifications natively" in {
     val spec = load("uber.api.yaml")
@@ -41,12 +40,12 @@ class SpeccerParserSmokeTest extends FlatSpec with Matchers {
   }
 
   def load(filename: String): Speccer = {
-    val fullname = "speccer-parser/src/test/resources/" + filename
-    new File(fullname) should exist
+    val qualified = "src/test/resources/" + filename
+    new File(qualified) should exist
 
-    val loadedModel = SpeccerParser.load(fullname)
+    val loadedModel = SpeccerParser.load(qualified)
     if (!loadedModel.isSuccess)
-      throw new IllegalStateException("parsing from model file: " + fullname)
+      throw new IllegalStateException("parsing from model file: " + qualified)
     loadedModel.get
   }
 }

@@ -1,1 +1,0 @@
-name := "speccer-sbt-plugin"

@@ -10,6 +10,10 @@ case class Info(title: String, description: String, version: String)
 case class Path(operations: Map[Method, Operation], parameters: List[Parameter])
 case class Operation(tags: List[String], description: String, summary: String, operationId: String, extensions: Map[String, String])
 case class Parameter(name: String, description: String, access: String, in: String, required: Boolean)
+case class Response(description: String, schema: ShallowSchema, headers: Map[String, ShallowHeader])
+case class ShallowSchema(typename: String, format: String, description: String, required: List[String])
+case class ShallowHeader(typename: String, format: String, description: String, items: ShallowItems)
+case class ShallowItems(typename: String, format: String, items: ShallowItems)
 
 sealed trait Scheme
 case object HTTP extends Scheme
@@ -26,16 +30,10 @@ case object PATCH extends Method
 case object OPTIONS extends Method
 
 object SpeccerParser {
-
   import scala.language.implicitConversions
 
   def load(filename: String): Try[Speccer] = {
     val spec = new SwaggerParser().read(filename)
-    Try(convert(spec))
-  }
-
-  def parse(yaml: String): Try[Speccer] = {
-    val spec = new SwaggerParser().parse(yaml)
     Try(convert(spec))
   }
 
@@ -53,22 +51,22 @@ object SpeccerParser {
     Speccer(swagger, host, schemes, consumes, produces, info, paths)
   }
 
-  // converts to immutable model
   object SwaggerConverters {
-
     import java.{util => ju}
-
     import io.swagger.models.parameters.{Parameter => JParameter}
     import io.swagger.models.{Info => JInfo, Operation => JOperation, Path => JPath, Scheme => JScheme}
-
     import scala.collection.JavaConverters._
 
     implicit def asSafeScalaString(str: String): String = {
       Option(str).getOrElse("")
     }
 
-    implicit def asScalaStringList(list: ju.List[String]): List[String] = {
-      Option(list).getOrElse(new ju.ArrayList()).asScala.toList
+    implicit def asSafeScalaList[T](list: ju.List[T]): List[T] = {
+      Option(list).getOrElse(new ju.ArrayList[T]()).asScala.toList
+    }
+
+    implicit def asSafeScalaMap[K, V](map: ju.Map[K, V]): Map[K, V] = {
+      Option(map).getOrElse(new ju.HashMap[K, V]()).asScala.toMap
     }
 
     implicit def asScalaInfo(info: JInfo): Info = {
@@ -76,22 +74,16 @@ object SpeccerParser {
     }
 
     implicit def asScalaSchemes(schemes: ju.List[JScheme]): List[Scheme] = {
-      if (schemes == null)
-        List.empty
-      else
-        schemes.asScala.toList map {
-          case JScheme.HTTP  => HTTP
-          case JScheme.HTTPS => HTTPS
-          case JScheme.WS    => WS
-          case JScheme.WSS   => WSS
-        }
+      asSafeScalaList(schemes) map {
+        case JScheme.HTTP  => HTTP
+        case JScheme.HTTPS => HTTPS
+        case JScheme.WS    => WS
+        case JScheme.WSS   => WSS
+      }
     }
 
     implicit def asScalaPaths(paths: ju.Map[String, JPath]): Map[String, Path] = {
-      if (paths == null)
-        Map.empty
-      else
-        paths.asScala.mapValues(asScalaPath(_)).toMap
+      asSafeScalaMap(paths).mapValues(asScalaPath(_))
     }
 
     implicit def asScalaPath(path: JPath): Path = {
@@ -117,25 +109,19 @@ object SpeccerParser {
     }
 
     implicit def asScalaParameters(ps: ju.List[JParameter]): List[Parameter] = {
-      if (ps == null)
-        List.empty
-      else
-        ps.asScala.toList map { p =>
-          Parameter(
-            p.getName,
-            p.getDescription,
-            p.getAccess,
-            p.getIn,
-            p.getRequired
-          )
-        }
+      asSafeScalaList(ps) map { p =>
+        Parameter(
+          p.getName,
+          p.getDescription,
+          p.getAccess,
+          p.getIn,
+          p.getRequired
+        )
+      }
     }
 
     implicit def asScalaVendorExtensions(ve: ju.Map[String, AnyRef]): Map[String, String] = {
-      if (ve == null)
-        Map.empty
-      else
-        ve.asScala.mapValues(_.toString).toMap
+      asSafeScalaMap(ve).mapValues(_.toString)
     }
   }
 }
