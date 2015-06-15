@@ -2,7 +2,7 @@ package net.zalando.speccer
 
 case class Route(method: Method, path: String, handler: String)
 
-class RoutesGenerator(val speccer: Speccer) {
+class RoutesGenerator(val speccer: Speccer, val output: String = "conf/routes") {
   def routes: List[Route] = {
     val routes = for {
       p <- speccer.paths
