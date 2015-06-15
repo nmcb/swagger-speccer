@@ -1,9 +1,8 @@
 package net.zalando.speccer.plugin
 
-import net.zalando.speccer.{SpeccerParser, RoutesGenerator}
+import net.zalando.speccer.{RoutesGenerator, SpeccerParser}
+import sbt.Keys._
 import sbt._
-import Keys._
-import sbt.complete.Parsers._
 
 object SwaggerSpeccer extends AutoPlugin {
 
