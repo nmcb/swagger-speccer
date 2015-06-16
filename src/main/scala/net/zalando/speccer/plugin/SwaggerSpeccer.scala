@@ -11,16 +11,12 @@ object SwaggerSpeccer extends AutoPlugin {
     lazy val speccer = inputKey[Unit]("generates a play routes file from swagger specification")
   }
 
-  watchSources <++= baseDirectory map { path =>
-    ((path / "conf") ** "*.yaml").get
-  }
-
   import autoImport._
 
   override def projectSettings: Seq[Setting[_]] = Seq(speccerSettings)
 
   def speccerSettings: Setting[_] = speccer := {
-    streams.value.log.info(s"Generating play routes from: ${swagger.value}")
+    streams.value.log.info(s"generating play routes from: ${swagger.value}")
     new RoutesGenerator(swagger.value).generate()
   }
 }
