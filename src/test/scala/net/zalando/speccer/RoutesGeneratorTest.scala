@@ -5,7 +5,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FlatSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])
-class PlayRoutesGeneratorTest extends FlatSpec with Matchers with TestResources {
+class RoutesGeneratorTest extends FlatSpec with Matchers with TestResources {
   behavior of "the RoutesGenerator"
 
   it should "generate from swagger" in {
