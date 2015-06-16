@@ -21,7 +21,7 @@ Please note that the plugin **will override any `conf/routes` file** present.  T
 In your `project` directory add the following lines to `plugins.sbt`:
 
 ```
-resolvers += Resolver.bintrayRepo("zalando", "sbt-plugins")
+resolvers += Resolver.url("sbt-plugins", url("http://dl.bintray.com/zalando/sbt-plugins"))(Resolver.ivyStylePatterns)
 
 addSbtPlugin("org.zalando" % "speccer-plugin" % "0.0.1")
 ```
