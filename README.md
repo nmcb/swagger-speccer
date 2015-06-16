@@ -26,5 +26,14 @@ resolvers += Resolver.bintrayRepo("zalando", "sbt-plugins")
 addSbtPlugin("org.zalando" % "speccer-plugin" % "0.0.1")
 ```
 
+## running
+
+Create a swagger api specification file in your Play project with the same name as specified above and run the following command from within sbt:
+ 
+```
+~ ;speccer ;compile
+```
+
+This will continually re-generate Play's routes file and compile the project.
 
 
