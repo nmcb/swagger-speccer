@@ -6,4 +6,4 @@ info:
 paths:
   /required:
     get:
-      description: needs-atrequired
+      x-handler: Controller.method

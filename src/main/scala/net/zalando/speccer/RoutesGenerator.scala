@@ -3,7 +3,7 @@ package net.zalando.speccer
 import java.io.File
 
 case class Route(method: Method, path: String, handler: String) {
-  override def toString = f"$method%-10s\t$path%-30s\t$handler"
+  def toRouteString = f"$method%-10s\t$path%-30s\t$handler"
 }
 
 class RoutesGenerator(val input: String, val output: String = "conf/routes") {
@@ -20,7 +20,7 @@ class RoutesGenerator(val input: String, val output: String = "conf/routes") {
   def generate() = {
     printToFile(new File(output)) { writer =>
       writer.println(s"# DO NOT CHANGE!  This file is generated from: $input")
-      routes.foreach(writer.println)
+      routes.foreach( r => writer.println(r.toRouteString))
     }
   }
 

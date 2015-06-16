@@ -1,0 +1,19 @@
+swagger: '2.0'
+info:
+  title: title
+  description: description
+  version: version
+paths:
+  /required:
+    get:
+      x-handler: Controller.get
+    post:
+      x-handler: Controller.post
+    put:
+      x-handler: Controller.put
+    patch:
+      x-handler: Controller.patch
+    delete:
+      x-handler: Controller.delete
+    options:
+      x-handler: Controller.options
