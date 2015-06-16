@@ -16,25 +16,25 @@ case class ShallowHeader(typename: String, format: String, description: String, 
 case class ShallowItems(typename: String, format: String, items: ShallowItems)
 
 sealed trait Scheme
-case object HTTP extends Scheme
+case object HTTP  extends Scheme
 case object HTTPS extends Scheme
-case object WS extends Scheme
-case object WSS extends Scheme
+case object WS    extends Scheme
+case object WSS   extends Scheme
 
 sealed trait Method
-case object GET extends Method
-case object PUT extends Method
-case object POST extends Method
-case object DELETE extends Method
-case object PATCH extends Method
+case object GET     extends Method
+case object PUT     extends Method
+case object POST    extends Method
+case object DELETE  extends Method
+case object PATCH   extends Method
 case object OPTIONS extends Method
 
 object SpeccerParser {
   import scala.language.implicitConversions
 
-  def load(filename: String): Try[Speccer] = {
+  def load(filename: String): Speccer = {
     val spec = new SwaggerParser().read(filename)
-    Try(convert(spec))
+    convert(spec)
   }
 
   private[this] def convert(spec: Swagger): Speccer = {
@@ -52,6 +52,7 @@ object SpeccerParser {
   }
 
   object SwaggerConverters {
+
     import java.{util => ju}
     import io.swagger.models.parameters.{Parameter => JParameter}
     import io.swagger.models.{Info => JInfo, Operation => JOperation, Path => JPath, Scheme => JScheme}
@@ -75,10 +76,10 @@ object SpeccerParser {
 
     implicit def asScalaSchemes(schemes: ju.List[JScheme]): List[Scheme] = {
       asSafeScalaList(schemes) map {
-        case JScheme.HTTP  => HTTP
+        case JScheme.HTTP => HTTP
         case JScheme.HTTPS => HTTPS
-        case JScheme.WS    => WS
-        case JScheme.WSS   => WSS
+        case JScheme.WS => WS
+        case JScheme.WSS => WSS
       }
     }
 
@@ -124,4 +125,5 @@ object SpeccerParser {
       asSafeScalaMap(ve).mapValues(_.toString)
     }
   }
+
 }

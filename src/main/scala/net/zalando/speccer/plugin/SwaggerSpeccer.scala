@@ -7,8 +7,12 @@ import sbt._
 object SwaggerSpeccer extends AutoPlugin {
 
   object autoImport {
-    val swagger = settingKey[String]("The swagger specification file.")
-    val speccer = inputKey[Unit]("Generates a play routes file from swagger specification.")
+    lazy val swagger = settingKey[String]("the swagger specification file")
+    lazy val speccer = inputKey[Unit]("generates a play routes file from swagger specification")
+  }
+
+  watchSources <++= baseDirectory map { path =>
+    ((path / "conf") ** "*.yaml").get
   }
 
   import autoImport._
@@ -16,12 +20,7 @@ object SwaggerSpeccer extends AutoPlugin {
   override def projectSettings: Seq[Setting[_]] = Seq(speccerSettings)
 
   def speccerSettings: Setting[_] = speccer := {
-    val log = streams.value.log
-    val speccer = SpeccerParser.load(swagger.?.value.getOrElse(""))
-    if (speccer.isSuccess) {
-      log.info(s"generating play routes from: $swagger")
-      val routes = RoutesGenerator(speccer.get).routes.mkString("\n")
-      log.info(s"generated routes: $routes")
-    }
+    streams.value.log.info(s"Generating play routes from: ${swagger.value}")
+    new RoutesGenerator(swagger.value).generate()
   }
 }

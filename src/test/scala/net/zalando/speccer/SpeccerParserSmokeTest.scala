@@ -42,10 +42,6 @@ class SpeccerParserSmokeTest extends FlatSpec with Matchers {
   def load(filename: String): Speccer = {
     val qualified = "src/test/resources/" + filename
     new File(qualified) should exist
-
-    val loadedModel = SpeccerParser.load(qualified)
-    if (!loadedModel.isSuccess)
-      throw new IllegalStateException("parsing from model file: " + qualified)
-    loadedModel.get
+    SpeccerParser.load(qualified)
   }
 }

@@ -9,7 +9,7 @@ class PlayRoutesGeneratorTest extends FlatSpec with Matchers with TestResources 
   behavior of "the RoutesGenerator"
 
   it should "generate from swagger" in {
-    RoutesGenerator(uberApi).routes should be(List(
+    new RoutesGenerator(uberApi).routes should be(List(
       Route(GET, "/me", "SomeController.someMethod"),
       Route(GET, "/products", "SomeController.someMethod"),
       Route(GET, "/estimates/time", "SomeController.someMethod"),
@@ -19,7 +19,7 @@ class PlayRoutesGeneratorTest extends FlatSpec with Matchers with TestResources 
   }
 
   it should "recognize path parameter" in {
-    val routes = RoutesGenerator(apiWithPathParameter).routes
+    val routes = new RoutesGenerator(apiWithPathParameter).routes
     routes should be(List(Route(GET, "/path/{parameter}", "Controller.method")))
   }
 }

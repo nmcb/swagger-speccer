@@ -1,19 +1,31 @@
 package net.zalando.speccer
 
-case class Route(method: Method, path: String, handler: String)
+import java.io.File
 
-class RoutesGenerator(val speccer: Speccer, val output: String = "conf/routes") {
-  def routes: List[Route] = {
-    val routes = for {
-      p <- speccer.paths
-      o <- p._2.operations
-    } yield Route(o._1, p._1, o._2.extensions.getOrElse("x-handler", "SomeController.someMethod"))
-    routes.toList
-  }
+case class Route(method: Method, path: String, handler: String) {
+  override def toString = f"$method%-10s\t$path%-30s\t$handler"
 }
 
-object RoutesGenerator {
-  def apply(speccer: Speccer) = {
-    new RoutesGenerator(speccer)
+class RoutesGenerator(val input: String, val output: String = "conf/routes") {
+  val speccer = SpeccerParser.load(input)
+
+  def routes: List[Route] = {
+    val routes = for {
+      (name, path) <- speccer.paths
+      (method, operation) <- path.operations
+    } yield Route(method, name, operation.extensions.getOrElse("x-handler", "SomeController.someMethod"))
+    routes.toList
+  }
+
+  def generate() = {
+    printToFile(new File(output)) { writer =>
+      writer.println(s"# DO NOT CHANGE!  This file is generated from: $input")
+      routes.foreach(writer.println)
+    }
+  }
+
+  private[this] def printToFile(f: java.io.File)(op: java.io.PrintWriter => Unit) {
+    val p = new java.io.PrintWriter(f)
+    try { op(p) } finally { p.close() }
   }
 }

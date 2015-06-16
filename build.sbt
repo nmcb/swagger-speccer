@@ -12,7 +12,7 @@ lazy val root = project.in(file(".")).settings(
   publishMavenStyle := false,
   repository in bintray := "sbt-plugins",
   bintrayOrganization in bintray := None,
-  initialCommands in console := "import com.typesafe.sbt.rss._",
+  initialCommands in console := "import net.zalando.speccer._",
   resolvers += Resolver.sonatypeRepo("snapshots"),
   libraryDependencies ++= Seq(
     "org.scalatest" %% "scalatest" % "2.2.4" % "test",
