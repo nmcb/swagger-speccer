@@ -1,2 +1,2 @@
-# speccer-scala
-Scala tooling for swagger 2.0
+# swagger-speccer
+Scala SBT plugin for swagger 2.0
