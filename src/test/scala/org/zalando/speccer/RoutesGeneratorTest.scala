@@ -1,4 +1,4 @@
-package net.zalando.speccer
+package org.zalando.speccer
 
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner

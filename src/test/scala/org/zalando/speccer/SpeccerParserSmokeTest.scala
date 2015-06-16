@@ -1,4 +1,4 @@
-package net.zalando.speccer
+package org.zalando.speccer
 
 import java.io.File
 

@@ -1,6 +1,6 @@
-package net.zalando.speccer.plugin
+package org.zalando.speccer.plugin
 
-import net.zalando.speccer.{RoutesGenerator, SpeccerParser}
+import org.zalando.speccer.{RoutesGenerator, SpeccerParser}
 import sbt.Keys._
 import sbt._
 

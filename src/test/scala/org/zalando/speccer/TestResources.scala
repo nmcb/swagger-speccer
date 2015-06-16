@@ -1,4 +1,4 @@
-package net.zalando.speccer
+package org.zalando.speccer
 
 trait TestResources {
   val uberApi = "src/test/resources/uber.api.yaml"

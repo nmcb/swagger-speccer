@@ -1,4 +1,4 @@
-package net.zalando.speccer
+package org.zalando.speccer
 
 import io.swagger.models.Swagger
 import io.swagger.parser.SwaggerParser
