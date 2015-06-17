@@ -1,0 +1,15 @@
+swagger: '2.0'
+info:
+  title: title
+  description: description
+  version: "1.0.0"
+host: localhost:9000
+produces:
+  - application/json
+paths:
+  /:
+    get:
+      x-handler: controllers.Application.index
+  /assets/*file:
+    get:
+      x-handler: "controllers.Assets.versioned(path=\"/public\", file: Asset)"
