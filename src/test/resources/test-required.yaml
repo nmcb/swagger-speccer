@@ -1,0 +1,9 @@
+swagger: '2.0'
+info:
+  title: title
+  description: description
+  version: version
+paths:
+  /required:
+    get:
+      x-handler: Controller.method
